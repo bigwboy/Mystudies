@@ -14,20 +14,13 @@ from matplotlib.colors import ListedColormap
 class Perceprtron(object):
     def __init__(self, eta=0.01, n_iter=10):
         """
-        感知机分类
-
+        感知机分类：
             参数
-            ------------
-            eta:float
-                学习率 ( 介于0.0 与1.0之间)
-            n_iter:int
-                迭代次数
+                eta:float   学习率 ( 介于0.0 与1.0之间)
+                n_iter:int  迭代次数
             属性
-            -------------
-            w_: 1d-array
-                权重
-            errors_: list
-                误差值列表
+                w_: 1d-array    权重
+                errors_: list   误差值列表
         """
         self.eta = eta
         self.n_iter = n_iter
@@ -83,6 +76,64 @@ def plot_decision_region(X, y, classifier, resolution=0.02):
 
     for idx, cl in enumerate(np.unique(y)):
         plt.scatter(x=X[y == cl, 0], y=X[y == cl, 1], alpha=0.8, c=cmap(idx), marker=makers[idx], label=cl)
+
+
+
+
+#自适应神经元
+class AdalineGD(object):
+    """自适应线性神经元分类器：
+            参数
+                eta:float   学习率 ( 介于0.0 与1.0之间)
+                n_iter:int  迭代次数
+            属性
+                w_: 1d-array    权重
+                errors_: list   误差值列表
+
+    """
+
+    def __init__(self, eta=0.01, n_iter=50):
+        self.eta = eta
+        self.n_iter = n_iter
+
+    def fit(self, X, y):
+        """Fit training data.
+        Parameters
+        ---------------
+        X: {array-like}, shape=[n_samples, n_features]
+            Training vectors,
+        y: array-like, shape=[n_samples]
+            Target values.
+        Returns
+        -----------
+        self: object
+        """
+        self.w_ = np.zeros(1 + X.shape[1])
+        self.cost_ = []
+        for i in range(self.n_iter):
+            output = self.net_input(X)
+            errors = (y - output)
+            self.w_[1:] += self.eta * X.T.dot(errors)
+            self.w_[0] += self.eta * errors.sum()
+            cost = (errors ** 2).sum() / 2.0
+            self.cost_.append(cost)
+        return self
+
+    def net_input(self, X):
+        """ Calculate net input"""
+        return np.dot(X, self.w_[1:]) + self.w_[0]
+
+    def activation(self, X):
+        """ Compute linear activation"""
+        return self.net_input(X)
+
+    def predict(self, X):
+        """ Return class label after unit step"""
+        return np.where(self.activation(X) >= 0.0, 1, -1)
+
+
+
+
 
 
 # debug
