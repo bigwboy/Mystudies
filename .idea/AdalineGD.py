@@ -3,6 +3,14 @@
 #VERSION:1.0
 #__OUTHOR__:guangguang
 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from matplotlib.colors import ListedColormap
+
+
+
 #自适应神经元
 class AdalineGD(object):
     """自适应线性神经元分类器：
@@ -31,8 +39,13 @@ class AdalineGD(object):
         self.cost_ = []
         for i in range(self.n_iter):
             output = self.net_input(X)
+            output = self.predict(X)
             errors = (y - output)
+
+            #权重w迭代
             self.w_[1:] += self.eta * X.T.dot(errors)
+
+            #参数b迭代
             self.w_[0] += self.eta * errors.sum()
 
             #损失函数
@@ -42,6 +55,7 @@ class AdalineGD(object):
 
     def net_input(self, X):
         """ 计算净输入"""
+        #Z = WX + b
         return np.dot(X, self.w_[1:]) + self.w_[0]
 
     def activation(self, X):
@@ -50,6 +64,7 @@ class AdalineGD(object):
 
     def predict(self, X):
         """ 激励函数"""
+        #Yhat=f(Z)
         return np.where(self.activation(X) >= 0.0, 1, -1)
 
 
@@ -57,4 +72,34 @@ class AdalineGD(object):
 
 #debug
 if __name__ == "__main__":
-    pass
+    df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None)
+    # print  df.tail()
+    # 获取数据
+    y = df.iloc[0:100, 4].values
+    # 转换
+    y = np.where(y == 'Iris-setosa', -1, 1)
+    X = df.iloc[0:100, [0, 2]].values
+    # 数据显示
+    plt.scatter(X[:50, 0], X[:50, 1], color='red', marker='o', label='setosa')
+    plt.scatter(X[50:100, 0], X[50:100, 1], color='b', marker='x', label='versicolor')
+    plt.xlabel('petal length')
+    plt.ylabel('sepal length')
+    plt.legend(loc='upper left')
+    #plt.show()
+
+    fig,ax = plt.subplots(nrows=1, ncols=2,figsize=(8,4))
+    ada1 = AdalineGD(n_iter=10, eta=0.01,).fit(X,y)
+    ax[0].plot(range(1,len(ada1.cost_) + 1), np.log10(ada1.cost_), marker='o')
+    ax[0].set_xlabel('Epochs')
+    ax[0].set_ylabel('log(Sum-squared-error)')
+    ax[0].set_title('Adalie - Learning rata 0.01')
+
+    ada2 = AdalineGD(n_iter=10, eta=0.00001, ).fit(X, y)
+    ax[1].plot(range(1, len(ada2.cost_) + 1), np.log10(ada2.cost_), marker='o')
+    ax[1].set_xlabel('Epochs')
+    ax[1].set_ylabel('log(Sum-squared-error)')
+    ax[1].set_title('Adalie - Learning rata 0.00001')
+    plt.show()
+
+
+    plt.show()
