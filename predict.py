@@ -63,6 +63,7 @@ class Perceprtron(object):
         return np.dot(X, self.w_[1:]) + self.w_[0]
 
     #激活函数
+    #heaviside阶越函数
     def predict(self, X):
         return np.where(self.net_input(X) >= 0.0, 1, -1)
 
@@ -87,9 +88,10 @@ def plot_decision_region(X, y, classifier, resolution=0.02):
 # debug
 if __name__ == "__main__":
     df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None)
-    print  df.tail()
-
+    #print  df.tail()
+    #获取数据
     y = df.iloc[0:100, 4].values
+    #转换
     y = np.where(y == 'Iris-setosa', -1, 1)
     X = df.iloc[0:100, [0, 2]].values
     # 数据显示
