@@ -40,10 +40,16 @@ class AdalineGD(object):
         for i in range(self.n_iter):
             #output = self.net_input(X)
             output = self.sigmoid(X)
+
+            #f(y)=y**n
+            #f'(y)=n*y**(n-1)
             errors = (y - output)
 
+            #sigmod导数
+            SIG=errors*(1-errors)
+
             #权重w迭代
-            self.w_[1:] += self.eta * X.T.dot(errors)
+            self.w_[1:] += self.eta * X.T.dot(SIG)
 
             #参数b迭代
             self.w_[0] += self.eta * errors.sum()
@@ -70,7 +76,24 @@ class AdalineGD(object):
     #sigmoid激励
     def sigmoid(self,X):
         return 1.0 / (1 + np.exp(-self.activation(X)))
+pass
 
+#分类显示
+def plot_decision_region(X, y, classifier, resolution=0.02):
+    makers = ('s', 'x', 'o', '^', 'v')
+    colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
+    cmap = ListedColormap(colors[:len(np.unique(y))])
+    x1_min, x1_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    x2_min, x2_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx1, xx2 = np.meshgrid(np.arange(x1_min, x1_max, resolution), np.arange(x2_min, x2_max, resolution))
+    z = classifier.predict(np.array([xx1.ravel(), xx2.ravel()]).T)
+    z = z.reshape(xx1.shape)
+    plt.contour(xx1, xx2, z, alpha=0.4, cmap=cmap)
+    plt.xlim(xx1.min(), xx1.max())
+    plt.ylim(xx2.min(), xx2.max())
+
+    for idx, cl in enumerate(np.unique(y)):
+        plt.scatter(x=X[y == cl, 0], y=X[y == cl, 1], alpha=0.8, c=cmap(idx), marker=makers[idx], label=cl)
 
 
 
@@ -84,25 +107,31 @@ if __name__ == "__main__":
     y = np.where(y == 'Iris-setosa', -1, 1)
     X = df.iloc[0:100, [0, 2]].values
     # 数据显示
-    plt.scatter(X[:50, 0], X[:50, 1], color='red', marker='o', label='setosa')
-    plt.scatter(X[50:100, 0], X[50:100, 1], color='b', marker='x', label='versicolor')
-    plt.xlabel('petal length')
-    plt.ylabel('sepal length')
-    plt.legend(loc='upper left')
+    #plt.scatter(X[:50, 0], X[:50, 1], color='red', marker='o', label='setosa')
+    #plt.scatter(X[50:100, 0], X[50:100, 1], color='b', marker='x', label='versicolor')
+    #plt.xlabel('petal length')
+    #plt.ylabel('sepal length')
+    #plt.legend(loc='upper left')
     #plt.show()
 
     fig,ax = plt.subplots(nrows=1, ncols=2,figsize=(8,4))
-    ada1 = AdalineGD(n_iter=100, eta=0.01,).fit(X,y)
+    ada1 = AdalineGD(n_iter=10, eta=0.01,).fit(X,y)
     ax[0].plot(range(1,len(ada1.cost_) + 1), np.log10(ada1.cost_), marker='o')
     ax[0].set_xlabel('Epochs')
     ax[0].set_ylabel('log(Sum-squared-error)')
     ax[0].set_title('Adalie - Learning rata 0.01')
 
-    ada2 = AdalineGD(n_iter=100, eta=0.001, ).fit(X, y)
+    ada2 = AdalineGD(n_iter=10, eta=0.001, ).fit(X, y)
     ax[1].plot(range(1, len(ada2.cost_) + 1), np.log10(ada2.cost_), marker='o')
     ax[1].set_xlabel('Epochs')
     ax[1].set_ylabel('log(Sum-squared-error)')
     ax[1].set_title('Adalie - Learning rata 0.001')
     plt.show()
 
+    # 最终分类显示
+    #plot_decision_region(X, y, classifier=ada1)
+    #plt.xlabel('sepal length[cm]')
+    #plt.ylabel('petal length[cm]')
+    #plt.legend(loc='upper left')
+    #plt.show()
 
