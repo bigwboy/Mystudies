@@ -11,6 +11,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import ssl
+import urllib.request
 
 from matplotlib.colors import ListedColormap
 
@@ -62,8 +64,8 @@ class AdalineGD(object):
             #损失函数
             cost = (errors ** 2).sum() / 2.0
             self.cost_.append(cost)
-        print 'fun=%s*x1+%s*x2+%s'%(self.w_[1],self.w_[2],self.w_[0])
-        print "ada-----"
+        print ('fun=%s*x1+%s*x2+%s'%(self.w_[1],self.w_[2],self.w_[0]))
+        print ("ada-----")
         return self
 
     def net_input(self, X):
@@ -107,7 +109,11 @@ def plot_decision_region(X, y, classifier, resolution=0.02):
 
 #debug
 if __name__ == "__main__":
-    df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None)
+    #df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None)
+    context = ssl._create_unverified_context()
+    file = urllib.request.urlopen('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data',
+                                  context=context)
+    df = pd.read_csv(file, header=None)
     # print  df.tail()
     # 获取数据
     y = df.iloc[0:100, 4].values

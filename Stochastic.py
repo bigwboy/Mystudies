@@ -7,6 +7,8 @@ import numpy as np
 from random import seed
 import pandas as pd
 import matplotlib.pyplot as plt
+import ssl
+import urllib.request
 
 from matplotlib.colors import ListedColormap
 
@@ -136,7 +138,10 @@ def plot_decision_region(X, y, classifier, resolution=0.02):
 
 #debug
 if __name__ == "__main__":
-    df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None)
+    context = ssl._create_unverified_context()
+    file = urllib.request.urlopen('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data',context=context)
+    df = pd.read_csv(file, header=None)
+    #df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None)
     # print  df.tail()
     # 获取数据
     y = df.iloc[0:100, 4].values
